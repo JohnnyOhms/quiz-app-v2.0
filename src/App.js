@@ -52,10 +52,42 @@ function App() {
       selectPage: false,
     }));
   }
+
+  function shuffle(array) {
+    let currentIndex = array.length,
+      randomIndex;
+    while (currentIndex !== 0) {
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+      [array[currentIndex], array[randomIndex]] = [
+        array[randomIndex],
+        array[currentIndex],
+      ];
+    }
+
+    return array;
+  }
+
   let quizQuestions = undefined;
+
   (() => {
     quizQuestions = ques.map((data) => {
-      return <Quiz key={nanoid()} {...data} />;
+      const { correct_answer, incorrect_answers, question } = data;
+      let choices = shuffle([...incorrect_answers, correct_answer]);
+
+      function checkChoices(selected) {
+        if (selected === data.correct_answer) {
+        }
+      }
+      return (
+        <Quiz
+          key={nanoid()}
+          question={question}
+          correct_answer={correct_answer}
+          choices={choices}
+          checkChoices={checkChoices}
+        />
+      );
     });
   })();
 
