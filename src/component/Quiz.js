@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 export default function Quiz(props) {
+  useEffect(() => {});
   let choice = props.choices.map((choice, index) => (
     <p key={index + 1} onClick={() => props.checkChoices(choice)}>
       {choice}

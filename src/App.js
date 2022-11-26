@@ -10,12 +10,18 @@ function App() {
     selectPage: false,
     questionPage: false,
     fetchData: false,
+    shuffleOne: false,
   });
   const [formData, updateformData] = useState({
     difficulty: "",
     category: "",
   });
+  const [score, setScore] = useState({
+    totalScore: 0,
+    on: false,
+  });
   const [ques, setQues] = useState([]);
+  let quizQuestions = undefined;
 
   useEffect(() => {
     if (!quiz.fetchData) return;
@@ -64,19 +70,28 @@ function App() {
         array[currentIndex],
       ];
     }
-
     return array;
   }
-
-  let quizQuestions = undefined;
 
   (() => {
     quizQuestions = ques.map((data) => {
       const { correct_answer, incorrect_answers, question } = data;
-      let choices = shuffle([...incorrect_answers, correct_answer]);
+      let choices = [...incorrect_answers, correct_answer];
+      if (quiz.shuffleOne) {
+        // return choices;
+      } else {
+        shuffle(choices);
+        start((quiz) => ({
+          ...quiz,
+          shuffleOne: true,
+        }));
+        console.log("shuffled");
+      }
 
       function checkChoices(selected) {
         if (selected === data.correct_answer) {
+          setScore((prevScore) => prevScore + 1);
+          console.log("correct");
         }
       }
       return (
