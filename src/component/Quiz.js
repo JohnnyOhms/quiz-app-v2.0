@@ -3,9 +3,14 @@ import React, { useEffect } from "react";
 export default function Quiz(props) {
   useEffect(() => {});
   let choice = props.choices.map((choice, index) => (
-    <p key={index + 1} onClick={() => props.checkChoices(choice)}>
+    <button
+      disabled={props.score.ids.includes(props.id)}
+      className="btn"
+      key={index + 1}
+      onClick={(event) => props.checkChoices(event, choice, props.id)}
+    >
       {choice}
-    </p>
+    </button>
   ));
   return (
     <div className="quiz-container">

@@ -11,6 +11,8 @@ function App() {
     questionPage: false,
     fetchData: false,
     shuffleOne: false,
+    shuffleOption: [],
+    loading: true,
   });
   const [formData, updateformData] = useState({
     difficulty: "",
@@ -18,7 +20,7 @@ function App() {
   });
   const [score, setScore] = useState({
     totalScore: 0,
-    on: false,
+    ids: [],
   });
   const [ques, setQues] = useState([]);
   let quizQuestions = undefined;
@@ -32,34 +34,35 @@ function App() {
       .then((data) => setQues(data.results));
   }, [quiz.fetchData]);
 
-  function startQuiz() {
+  const startQuiz = () => {
     start((quiz) => ({
       ...quiz,
       introPage: false,
       selectPage: true,
     }));
-  }
+  };
 
-  function handleChange(Event) {
+  const handleChange = (Event) => {
     const { name, value } = Event.target;
     updateformData((form) => ({
       ...form,
       [name]: value,
     }));
-  }
+  };
 
-  function submitForm(Event) {
+  const submitForm = (Event) => {
     Event.preventDefault();
-    if (formData.difficulty === "" || formData.category === "") return;
-    start((quiz) => ({
-      ...quiz,
-      questionPage: true,
-      fetchData: true,
-      selectPage: false,
-    }));
-  }
+    formData.difficulty === "" && formData.category === ""
+      ? alert("choose a question type")
+      : start((quiz) => ({
+          ...quiz,
+          questionPage: true,
+          fetchData: true,
+          selectPage: false,
+        }));
+  };
 
-  function shuffle(array) {
+  const shuffle = (array) => {
     let currentIndex = array.length,
       randomIndex;
     while (currentIndex !== 0) {
@@ -71,36 +74,36 @@ function App() {
       ];
     }
     return array;
-  }
+  };
 
   (() => {
-    quizQuestions = ques.map((data) => {
+    quizQuestions = ques.map((data, index) => {
       const { correct_answer, incorrect_answers, question } = data;
       let choices = [...incorrect_answers, correct_answer];
-      if (quiz.shuffleOne) {
-        // return choices;
-      } else {
-        shuffle(choices);
-        start((quiz) => ({
-          ...quiz,
-          shuffleOne: true,
-        }));
-        console.log("shuffled");
-      }
-
-      function checkChoices(selected) {
+      shuffle(choices);
+      const checkChoices = (event, selected, id) => {
         if (selected === data.correct_answer) {
-          setScore((prevScore) => prevScore + 1);
-          console.log("correct");
+          setScore((prevScore) => ({
+            ...prevScore,
+            totalScore: prevScore.totalScore + 1,
+          }));
         }
-      }
+        setScore((prevScore) => ({
+          ...prevScore,
+          ids: prevScore.ids.includes(id)
+            ? prevScore.ids
+            : [...prevScore.ids, id],
+        }));
+      };
       return (
         <Quiz
           key={nanoid()}
+          id={index + 1}
           question={question}
           correct_answer={correct_answer}
           choices={choices}
           checkChoices={checkChoices}
+          score={score}
         />
       );
     });
@@ -119,7 +122,9 @@ function App() {
       <div className="quiz-main">
         {ques.length > 0 && <h1>{ques[0].category}</h1>}
         {ques.length > 0 && <h3>{ques[0].difficulty}</h3>}
+        {quiz.loading ? <h1>loading!!</h1> : ""}
         {quiz.questionPage && quizQuestions}
+        {score.ids.length === 5 ? <h1>{score.totalScore}</h1> : ""}
       </div>
     </div>
   );
