@@ -1,23 +1,30 @@
-import React, { useEffect } from "react";
+import React from "react";
 
 export default function Quiz(props) {
-  useEffect(() => {});
+  const style = {
+    correct: {
+      // color: "#cf9634",
+      color: "#3f2b0a",
+      border: "2px solid #cf9634",
+    },
+  };
   let choice = props.choices.map((choice, index) => (
     <button
       disabled={props.score.ids.includes(props.id)}
-      className="btn"
+      className="button-62"
       key={index + 1}
-      onClick={(event) => props.checkChoices(event, choice, props.id)}
+      onClick={(event) =>
+        props.checkChoices(event, choice, props.id, props.correctBtn)
+      }
+      style={style.correct}
     >
       {choice}
     </button>
   ));
   return (
-    <div className="quiz-container">
-      <div className="quiz-container__questions">
-        <span className="question">{props.question}</span>
-        <div className="options">{choice}</div>
-      </div>
+    <div className="quiz__container">
+      <span className="question">{props.question}</span>
+      <div className="options">{choice}</div>
     </div>
   );
 }

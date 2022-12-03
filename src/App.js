@@ -3,6 +3,7 @@ import { nanoid } from "nanoid";
 import Home from "./component/Home";
 import Start from "./component/Start";
 import Quiz from "./component/Quiz";
+import PlayAgain from "./component/PLayAgain";
 
 function App() {
   const [quiz, start] = useState({
@@ -12,7 +13,6 @@ function App() {
     fetchData: false,
     shuffleOne: false,
     shuffleOption: [],
-    loading: true,
   });
   const [formData, updateformData] = useState({
     difficulty: "",
@@ -21,6 +21,7 @@ function App() {
   const [score, setScore] = useState({
     totalScore: 0,
     ids: [],
+    correctBtn: false,
   });
   const [ques, setQues] = useState([]);
   let quizQuestions = undefined;
@@ -28,11 +29,13 @@ function App() {
   useEffect(() => {
     if (!quiz.fetchData) return;
     fetch(
-      `https://opentdb.com/api.php?amount=5&category=31&difficulty=${formData.difficulty}&type=multiple`
+      `https://opentdb.com/api.php?amount=5&category=20&difficulty=${formData.difficulty}&type=multiple`
     )
       .then((res) => res.json())
       .then((data) => setQues(data.results));
   }, [quiz.fetchData]);
+
+  // useEffect(() => displayQues(), []);
 
   const startQuiz = () => {
     start((quiz) => ({
@@ -81,7 +84,7 @@ function App() {
       const { correct_answer, incorrect_answers, question } = data;
       let choices = [...incorrect_answers, correct_answer];
       shuffle(choices);
-      const checkChoices = (event, selected, id) => {
+      const checkChoices = (event, selected, id, correctBtn) => {
         if (selected === data.correct_answer) {
           setScore((prevScore) => ({
             ...prevScore,
@@ -104,10 +107,26 @@ function App() {
           choices={choices}
           checkChoices={checkChoices}
           score={score}
+          correctBtn={score.correctBtn}
+          data={data.correct_answer}
         />
       );
     });
   })();
+
+  function startPage() {
+    start((quiz) => ({
+      ...quiz,
+      selectPage: !quiz.selectPage,
+      questionPage: !quiz.questionPage,
+      fetchData: !quiz.fetchData,
+    }));
+    setScore(() => ({
+      totalScore: 0,
+      ids: [],
+    }));
+    setQues([]);
+  }
 
   return (
     <div className="App">
@@ -119,12 +138,16 @@ function App() {
           submitForm={submitForm}
         />
       )}
-      <div className="quiz-main">
-        {ques.length > 0 && <h1>{ques[0].category}</h1>}
-        {ques.length > 0 && <h3>{ques[0].difficulty}</h3>}
-        {quiz.loading ? <h1>loading!!</h1> : ""}
-        {quiz.questionPage && quizQuestions}
-        {score.ids.length === 5 ? <h1>{score.totalScore}</h1> : ""}
+      {ques.length > 0 && <h1>{ques[0].category}</h1>}
+      {ques.length > 0 && <h3>LeveL: {ques[0].difficulty}</h3>}
+      <div className="quiz-main">{quiz.questionPage && quizQuestions}</div>
+      {score.ids.length === 5 ? (
+        <h1 className="total-score">{`Your Total score is ${score.totalScore}/5`}</h1>
+      ) : (
+        ""
+      )}
+      <div className="start-btn">
+        {score.ids.length === 5 ? <PlayAgain startPage={startPage} /> : ""}
       </div>
     </div>
   );
