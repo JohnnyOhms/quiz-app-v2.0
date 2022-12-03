@@ -35,8 +35,6 @@ function App() {
       .then((data) => setQues(data.results));
   }, [quiz.fetchData]);
 
-  // useEffect(() => displayQues(), []);
-
   const startQuiz = () => {
     start((quiz) => ({
       ...quiz,
